@@ -8,7 +8,7 @@ import { t } from '../i18n';
 import { Btn, Chip, Hero, Input, Label, Row, Section, Segmented, Sheet, useWide } from '../components/ui';
 import { dateWithYear, todayISO, uid } from '../utils/date';
 import { DatePicker } from '../components/DatePicker';
-import { addPrice, affectedByPrice, priceHistory, priceOn } from '../utils/prices';
+import { addPrice, affectedByPrice, existingForPrice, priceHistory, priceOn } from '../utils/prices';
 import { APP_VERSION, BUILD_ID } from '../version';
 import { exportExcel, pickAndParseExcel } from '../services/excel';
 import { DeviceCalendar, ensureCalendarPermission, listWritableCalendars } from '../services/calendar';
@@ -27,7 +27,9 @@ function ask(title: string, body: string, yes: string, no: string, onYes: () => 
   }
 }
 
-type PriceChange = { from: string; price: number };
+type PriceScope = 'future' | 'existing';
+/** price gol = nu s-a schimbat prețul, doar se aplică lista de prețuri programărilor existente */
+type PriceChange = { from: string; price?: number; scope: PriceScope };
 
 export function SettingsScreen() {
   const { appointments, procedures, settings, updateSettings, saveProcedure, deleteProcedure, repriceAppointments, importAppointments, savedAt,
@@ -104,11 +106,23 @@ export function SettingsScreen() {
     saveProcedure(p);
     setEditing(null);
     if (!change || !before) return;
-    const list = affectedByPrice(appointments, before, change.from, todayISO()).filter((a) => a.price !== change.price);
+    if (change.scope === 'existing') {
+      // toate programările serviciului de la data aleasă (și cele trecute / finalizate) primesc prețul valabil la data lor
+      const list = existingForPrice(appointments, p, change.from);
+      if (!list.length) { say(t.settings.repriceNone); return; }
+      ask(t.settings.repriceAllTitle, t.settings.repriceAllBody(list.length, dateWithYear(change.from)), t.settings.repriceYes, t.settings.repriceNo, () => {
+        repriceAppointments(list);
+        say(t.settings.repriceDone(list.length));
+      });
+      return;
+    }
+    if (change.price === undefined) return;
+    const price = change.price;
+    const list = affectedByPrice(appointments, before, change.from, todayISO()).filter((a) => a.price !== price);
     if (!list.length) return;
     const start = change.from > todayISO() ? change.from : todayISO();
-    ask(t.settings.repriceTitle, t.settings.repriceBody(list.length, change.price, dateWithYear(start)), t.settings.repriceYes, t.settings.repriceNo, () => {
-      repriceAppointments(list.map((a) => a.id), change.price);
+    ask(t.settings.repriceTitle, t.settings.repriceBody(list.length, price, dateWithYear(start)), t.settings.repriceYes, t.settings.repriceNo, () => {
+      repriceAppointments(list.map((a) => ({ id: a.id, price })));
       say(t.settings.repriceDone(list.length));
     });
   };
@@ -330,12 +344,13 @@ function ServiceSheet({ proc, usePrices, canDelete, onClose, onSave, onDelete }:
   const [price, setPrice] = useState('');
   const [from, setFrom] = useState(todayISO());
   const [pickFrom, setPickFrom] = useState(false);
+  const [scope, setScope] = useState<PriceScope>('future');
   const [color, setColor] = useState(procedureColors[0]);
   const [kind, setKind] = useState<ProcKind>('client');
   const [report, setReport] = useState(true);
   React.useEffect(() => {
     if (proc) {
-      setName(proc.name); setDur(proc.durationMin); setPrice(''); setFrom(todayISO()); setColor(proc.color);
+      setName(proc.name); setDur(proc.durationMin); setPrice(''); setFrom(todayISO()); setScope('future'); setColor(proc.color);
       setKind(proc.kind || 'client'); setReport(proc.report ?? true);
     }
   }, [proc]);
@@ -349,7 +364,8 @@ function ServiceSheet({ proc, usePrices, canDelete, onClose, onSave, onDelete }:
 
   const save = () => {
     const base: Procedure = { ...proc, name: name.trim(), durationMin: dur, color, kind: kind === 'personal' ? 'personal' : undefined, report: kind === 'personal' ? report : undefined };
-    if (usePrices && validPrice) onSave(addPrice(base, from, pr, today), { from, price: pr });
+    if (usePrices && validPrice) onSave(addPrice(base, from, pr, today), { from, price: pr, scope });
+    else if (usePrices && scope === 'existing' && history.length) onSave(base, { from, scope });
     else onSave(base);
   };
 
@@ -395,7 +411,9 @@ function ServiceSheet({ proc, usePrices, canDelete, onClose, onSave, onDelete }:
             <Ionicons name="calendar" size={20} color={colors.primary} />
             <Text style={st.rowText}>{dateWithYear(from)}</Text>
           </Pressable>
-          <Text style={[st.sub, { marginTop: 8 }]}>{t.settings.priceHint}</Text>
+          <Label>{t.settings.priceScope}</Label>
+          <Segmented items={(['future', 'existing'] as PriceScope[]).map((k) => ({ key: k, label: t.settings.priceScopeOpts[k] }))} value={scope} onChange={setScope} />
+          <Text style={[st.sub, { marginTop: 8 }]}>{scope === 'existing' ? t.settings.priceScopeHintExisting : t.settings.priceHint}</Text>
           {kind === 'personal' ? (
             <Row style={{ justifyContent: 'space-between', marginTop: 14 }}>
               <View style={{ flex: 1, paddingRight: 12 }}>

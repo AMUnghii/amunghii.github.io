@@ -2,6 +2,14 @@
 
 Înainte de test, verifică versiunea: **Setări → jos, „Versiune …”**. Trebuie să fie cea de mai jos.
 
+## 1.7.0 — modificare prețuri (existente / viitoare)
+Înainte: Setări → „Folosesc prețuri” pornit.
+1. Setări → Serviciile mele → „Manichiură” → Preț nou 150, Valabil de la azi, „Se aplică la: Programările viitoare” → Salvează → întrebare „Actualizez programările viitoare?” → Da: cele programate de azi încolo au 150; cele din trecut rămân.
+2. Același serviciu → Preț nou 140, Valabil de la 1 ian. (în trecut), „Și cele existente” → Salvează → „Actualizez și programările existente?” cu numărul lor → Da: toate de la 1 ian. (și finalizate) au 140; Rapoarte se schimbă. Cele anulate rămân.
+3. Fără preț nou, „Și cele existente”, de la o dată → se aplică prețul din istoric fiecărei programări (cele fără preț îl primesc). Dacă nu e nimic de schimbat: „Nicio programare existentă de schimbat”.
+4. Deschizi o programare din trecut → schimbi prețul → Salvează → în listă și în Rapoarte apare noul preț. Dacă prețul diferă de listă, butonul „Pune prețul din listă: X lei” îl readuce.
+5. Cu sincronizarea: pe al doilea dispozitiv apar prețurile noi după sincronizare.
+
 ## 1.6.0 — pagina „Acasă”
 1. Deschizi aplicația → apare „Acasă”: data de azi, „N programări azi”, săptămâna curentă și „Următoarea programare”, cu „în X min”.
 2. „Ziua pe ore”: programările de azi în culoarea serviciului, linia fucsia la ora curentă, cele terminate mai șterse, cele anulate tăiate, iar cele personale pe toată ziua ca bandă sus.

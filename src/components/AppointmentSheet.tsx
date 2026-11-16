@@ -224,6 +224,15 @@ export function AppointmentSheet({ target, onClose }: { target: SheetTarget | nu
           <>
             <Label>{personal ? t.personal.price : t.price}</Label>
             <Input value={price} onChangeText={setPrice} keyboardType="decimal-pad" placeholder={`ex. 120 ${t.lei}`} />
+            {(() => {
+              // la o programare existentă: scurtătură spre prețul din lista serviciului (valabil la data programării)
+              const listPrice = editing ? priceOn(proc, date) : undefined;
+              return listPrice !== undefined && price.trim() !== String(listPrice) ? (
+                <Row style={{ marginTop: 8 }}>
+                  <Chip small label={t.useListPrice(listPrice)} onPress={() => setPrice(String(listPrice))} />
+                </Row>
+              ) : null;
+            })()}
             {personal ? (
               <Row style={{ justifyContent: 'space-between', marginTop: 12 }}>
                 <View style={{ flex: 1, paddingRight: 12 }}>

@@ -32,7 +32,8 @@ interface Ctx {
   saveProcedure: (p: Procedure) => void;
   deleteProcedure: (id: string) => void;
   /** pune prețul nou pe programările date (după confirmare) */
-  repriceAppointments: (ids: string[], price: number) => void;
+  /** Schimbă prețul la programările date (id → preț nou). */
+  repriceAppointments: (changes: { id: string; price: number }[]) => void;
   importAppointments: (list: Appointment[], newProcs: Procedure[]) => { added: number; updated: number };
   syncConnected: boolean;
   syncStatus: SyncStatus;
@@ -310,11 +311,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     scheduleSync();
   }, [scheduleSync]);
 
-  const repriceAppointments = useCallback((ids: string[], price: number) => {
-    if (!ids.length) return;
+  const repriceAppointments = useCallback((changes: { id: string; price: number }[]) => {
+    if (!changes.length) return;
     const now = new Date().toISOString();
-    const set = new Set(ids);
-    setData((d) => ({ ...d, appointments: d.appointments.map((a) => (set.has(a.id) ? { ...a, price, updatedAt: now } : a)) }));
+    const map = new Map(changes.map((c) => [c.id, c.price]));
+    setData((d) => ({ ...d, appointments: d.appointments.map((a) => (map.has(a.id) ? { ...a, price: map.get(a.id), updatedAt: now } : a)) }));
     scheduleSync();
   }, [scheduleSync]);
 
