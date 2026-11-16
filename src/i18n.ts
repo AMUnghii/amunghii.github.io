@@ -57,6 +57,7 @@ export const t = {
   minute: 'Minute',
   duration: 'Cât durează',
   price: 'Preț (opțional)',
+  useListPrice: (p: number) => `Pune prețul din listă: ${p} lei`,
   notes: 'Observații (opțional)',
   save: 'Salvează',
   cancel: 'Renunță',
@@ -221,6 +222,14 @@ export const t = {
     repriceTitle: 'Actualizez programările viitoare?',
     repriceBody: (n: number, price: number, d: string) =>
       `${n === 1 ? '1 programare' : `${n} programări`} din ${d} încolo ${n === 1 ? 'are' : 'au'} încă prețul vechi. Le trec la ${price} lei?\nCele finalizate, cele din trecut și cele cu preț schimbat de mână rămân cum sunt.`,
+    priceScope: 'Se aplică la',
+    priceScopeOpts: { future: 'Programările viitoare', existing: 'Și cele existente' } as Record<'future' | 'existing', string>,
+    priceScopeHintExisting:
+      'Toate programările acestui serviciu de la data aleasă primesc prețul valabil la data lor, inclusiv cele din trecut și cele finalizate (deci și rapoartele se schimbă). Cele anulate rămân cum sunt. Poți lăsa prețul gol ca să aplici doar lista de prețuri de mai sus (de ex. la programări importate fără preț). Îți cer confirmare înainte.',
+    repriceAllTitle: 'Actualizez și programările existente?',
+    repriceAllBody: (n: number, d: string) =>
+      `${n === 1 ? '1 programare' : `${n} programări`} din ${d} încolo (inclusiv din trecut și finalizate) ${n === 1 ? 'va primi' : 'vor primi'} prețul valabil la data ${n === 1 ? 'ei' : 'lor'}. Continui?`,
+    repriceNone: 'Nicio programare existentă de schimbat: toate au deja prețul corect.',
     repriceYes: 'Da, actualizează',
     repriceNo: 'Nu, lasă-le',
     repriceDone: (n: number) => (n === 1 ? 'Am actualizat 1 programare.' : `Am actualizat ${n} programări.`),

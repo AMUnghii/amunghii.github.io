@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.0 — 2026-11-16
+- **Modifici prețurile și la programările existente**: în Setări → Serviciile mele → un serviciu, sub „Valabil de la” alegi „Se aplică la”: **Programările viitoare** (ca până acum: doar cele programate, cu prețul vechi, de la data aleasă) sau **Și cele existente**: toate programările serviciului de la data aleasă, inclusiv din trecut și finalizate, primesc prețul valabil la data lor (cele anulate nu). Cere confirmare și spune câte se schimbă. Dacă lași prețul gol, se aplică doar lista de prețuri existentă (util la programări importate fără preț).
+- **Prețul unei singure programări**: se schimbă din fereastra ei (câmpul „Preț”), la orice status. Nou: la o programare existentă apare butonul „Pune prețul din listă: X lei” când prețul ei diferă de cel al serviciului.
+- Sincronizare: programările schimbate primesc `updatedAt` nou, deci ajung pe celelalte dispozitive. Fără schimbări în Code.gs.
+
 ## 1.6.0 — 2026-11-11
 - **Pagină nouă „Acasă”**, prima când deschizi aplicația. Arată data de azi, câte programări ai (și câte sunt anulate), **următoarea programare** cu „în X min” și **ziua pe ore**, cu o linie pentru ora curentă. Programările personale pe toată ziua apar ca bandă sus, iar cele anulate sunt tăiate.
 - **Pe telefon**: sus data mare și săptămâna curentă (punct auriu = zi cu programări; apeși pe o zi și se deschide calendarul la ziua aceea). Jos e o bară cu Calendar, Programări, „+” (programare nouă), Rapoarte și Setări. Din celelalte ecrane revii la Acasă din bara de jos (iconița casă).

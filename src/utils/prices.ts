@@ -35,3 +35,17 @@ export function affectedByPrice(appts: Appointment[], before: Procedure, from: s
   return appts.filter((a) => !a.deleted && a.procedureId === before.id && a.status === 'programat' && a.date >= start
     && a.price !== undefined && a.price === priceOn(before, a.date));
 }
+
+/**
+ * Programările existente (inclusiv finalizate / din trecut) ale serviciului, de la `from` încolo, care ar primi alt preț
+ * după lista de prețuri `proc` (prețul valabil la data fiecăreia). Cele anulate și cele șterse nu se ating.
+ */
+export function existingForPrice(appts: Appointment[], proc: Procedure, from: string): { id: string; price: number }[] {
+  const out: { id: string; price: number }[] = [];
+  for (const a of appts) {
+    if (a.deleted || a.procedureId !== proc.id || a.status === 'anulat' || a.date < from) continue;
+    const price = priceOn(proc, a.date);
+    if (price !== undefined && a.price !== price) out.push({ id: a.id, price });
+  }
+  return out;
+}
